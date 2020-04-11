@@ -10,22 +10,71 @@ var connect = require('../connection').connect;
 router.use(bodyParser.json());
 router.post('/signup',(req,res,next) =>
 {
-    var sql ='INSERT INTO users (username,password,broker) VALUES (\''+req.body.username+'\',\''+req.body.password+'\',\''+req.body.broker+'\')';
-    connect.query(sql,(err,resu,field) =>
-    {
-        if(err)
-        {
-            next(err);
-            return ;
-        }
-        else
-        {
-             res.statusCode = 200;
-             res.setHeader('Content-Type', 'application/json');
-             res.json({"status":"success"});
-        }
-    });
-
+   var arr=['full service','discount','online broker'];
+   var ind;
+   if(req.body.broker)
+   ind=arr.indexOf(req.body.type);
+   if(!req.body.broker || ((req.body.commision>=0) && (req.body.commision<=100) && ind!==-1))
+   {
+       console.log("how did you");
+       var sql = "INSERT INTO users (username,password,broker,firstname,lastname,address,phone,gender) VALUES (" +
+           "'" + req.body.username + "','" + req.body.password + "','" + req.body.broker + "','" + req.body.firstname + "','" +
+           req.body.lastname + "','" + req.body.address + "','" + req.body.phone_no + "','" + req.body.gender + "')";
+       connect.query(sql, (err, resu, field) =>
+       {
+           if (err)
+           {
+               next(err);
+               return;
+           } else
+           {
+               if (req.body.broker)
+               {
+                   var sql_q = "INSERT INTO brokers (LicenceNumber,company,commision,username,type) VALUES (" +
+                       "'" + req.body.LicenceNumber + "','" + req.body.company + "','" + req.body.commision + "','" + req.body.username
+                       + "','" + req.body.type + "')";
+                   connect.query(sql_q, (err, resu, field) =>
+                   {
+                       if (err)
+                       {
+                           next(err);
+                           return;
+                       } else
+                       {
+                           res.statusCode = 200;
+                           res.setHeader('Content-Type', 'application/json');
+                           res.json({"status": "success", "broker_added": true});
+                       }
+                   })
+               } else
+               {
+                   res.statusCode = 200;
+                   res.setHeader('Content-Type', 'application/json');
+                   res.json({"status": "success"});
+               }
+           }
+       });
+   }
+   else
+   {
+       if(req.body.commision <0 || req.body.commision>100)
+       {
+           err=new Error("commision must be in range 0-100 inclusive");
+           err.status=401;
+           next(err);
+           return;
+       }
+       else if(ind===-1)
+       {
+           err=new Error("type can only be \'full service,discount,online broker'");
+           err.status=401;
+           next(err);
+           return ;
+       }
+       console.log(req.body.commission,ind);
+       err=new Error("unknown err");
+       next(err);
+   }
 })
 router.post('/login',(req,res,next) =>
 {

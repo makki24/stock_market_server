@@ -19,6 +19,8 @@ const connec_fn = () =>
             console.log('connected correctly to the database server');
             const createuser =require('./models/users');
             createuser(connect);
+            const createbrooker =require('./models/broker');
+            createbrooker(connect);
         }
     });
 }
