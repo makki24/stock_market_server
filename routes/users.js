@@ -4,10 +4,22 @@ var passport = require('passport');
 var authenticate =require('../authenticate');
 const bodyParser =require('body-parser');
 var connect = require('../connection').connect;
-/* GET users listing. */
+
 
 
 router.use(bodyParser.json());
+
+router.get('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+{
+    var sql = "SELECT * FROM users";
+    connect.query(sql,(err,result,field) =>
+    {
+        console.log("all users is ",result);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({result});
+    });
+});
 router.post('/signup',(req,res,next) =>
 {
    var arr=['full service','discount','online broker'];
@@ -81,7 +93,7 @@ router.post('/login',(req,res,next) =>
     req.session.user=null;
     res.clearCookie('session-id');
     next();
-}, authenticate,(req, res, next) =>
+}, authenticate.authenticateUser,(req, res, next) =>
 {
     if(req.user)
     {

@@ -1,7 +1,7 @@
 
 var connect = require('./connection').connect;
 
-const authenticateUser =(req,res,next) =>
+exports.authenticateUser =(req,res,next) =>
 {
     if (!req.session.user)
     {
@@ -22,7 +22,7 @@ const authenticateUser =(req,res,next) =>
                obj.broker =res[0].broker;
                obj.admin= res[0].admin;
                req.user=obj;
-               req.session.user = username;
+               req.session.user = obj;
                next();
            }
            else
@@ -40,5 +40,14 @@ const authenticateUser =(req,res,next) =>
     }
 };
 
-
-module.exports =authenticateUser;
+exports.verifyAdmin =(req,res,next) =>
+{
+    if(req.user.admin)
+       next();
+    else
+    {
+        var err=new Error('You are not authorized');
+        err.status=401;
+        next(err);
+    }
+}
