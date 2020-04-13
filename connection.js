@@ -21,6 +21,16 @@ const connec_fn = () =>
             createuser(connect);
             const createbrooker =require('./models/broker');
             createbrooker(connect);
+            const createcorp = require('./models/corporation');
+            createcorp(connect);
+            const createcurrency= require('./models/currency');
+            createcurrency(connect);
+            const createcountry = require('./models/country');
+            createcountry(connect);
+            const createmarket = require('./models/stockMarket');
+            createmarket(connect);
+            const createshare =require('./models/shares');
+            createshare(connect);
         }
     });
 }

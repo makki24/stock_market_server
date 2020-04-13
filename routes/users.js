@@ -109,4 +109,22 @@ router.post('/login',(req,res,next) =>
     }
 });
 
+router.get('/logout',(req,res,next) =>
+{
+    if(req.session.user)
+    {
+        req.session.destroy((err) => {
+                if(err) {
+                    return console.log(err);
+                }
+                res.redirect('/');
+        });
+    }
+    else
+    {
+        var err =new Error("you are not logged in");
+        err.status=403;
+        next(err);
+    }
+})
 module.exports = router;
