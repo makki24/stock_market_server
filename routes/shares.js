@@ -31,26 +31,80 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
     var status=[];
     req.body.map((share,index) =>
     {
-        var sql = "INSERT INTO shares (shareId,shareValue,marketId,corpId) VALUES ('"+share.shareId+"' ," +
-            share.shareValue+" ,'"+share.marketId+"' ,'"+share.corpId+"')";
-        connect.query(sql,(err,result) =>
+        var currency="INSERT INTO currencies(curId,exchageValue) VALUES ('"+share.curId+
+                                    "','"+share.exchangeValue+"' )"
+        connect.query(currency,(err,result) =>
         {
-            var stat =new Object({status:false});
             if(!err)
             {
-                stat={status:true};
+                console.log("inserted currency successfully");
+                var country ="INSERT INTO country (countryId,population,name,curId) VALUES ('" +share.countryId
+                        +"' ," +share.population+" ,'" +share.name+"' ,'" +share.curId+
+                            "')"
+                connect.query(country,(err,result) =>
+                {
+                    if(!err)
+                    {
+                        console.log("inserted country successfullly");
+                        var market = "INSERT INTO stockMarket (marketName,marketId,countryId) VALUES ('" +share.marketName+"' ,'" +
+                            share.marketId+"' ,'" +share.countryId+"' " +
+                            ")"
+                        connect.query(market,(err,result) =>
+                        {
+                            if(!err)
+                            {
+                                console.log("inserted market successfullly")
+                                var sql = "INSERT INTO shares (shareId,shareValue,marketId,corpId) VALUES ('"+share.shareId+"' ," +
+                                    share.shareValue+" ,'"+share.marketId+"' ,'"+share.corpId+"')";
+                                connect.query(sql,(err,result) =>
+                                {
+                                    if(!err)
+                                    {
+                                        console.log("inserted share successfullly")
+                                        res.statusCode=200;
+                                        res.setHeader('Content-Type','application/json');
+                                        res.json({status:"success"});
+                                    }
+                                    else
+                                    {
+                                        console.log("shares err",err);
+                                    }
+                                })
+                            }
+                            else
+                            {
+                                console.log("market err",err);
+                                return ;
+                            }
+                        })
+                    }
+                    else
+                    {
+                        console.log("country err",err);
+                        return ;
+                    }
+                });
+                var corp = "INSERT INTO corporation (corpId,corpName,corpType) VALUES ('" +share.corpId+"' ,'" +
+                    share.corpName+"' ,'" +share.corpType+"' "+
+                    ")"
+                connect.query(corp,(err,result) =>
+                {
+                    if(!err)
+                    {
+                        console.log("inserted into corporation successfully ");
+                    }
+                    else
+                    {
+                        console.log("corp err",err);
+                    }
+                });
             }
-            status.push(stat);
             if(err)
             {
-                console.log(err);
+                console.log("currency err",err);
+                return ;
             }
-            console.log(status);
         });
     });
-    console.log(status);
-    res.statusCode=200;
-    res.setHeader('Content-Type','application/json');
-    res.json(status);
 })
 module.exports= router;
