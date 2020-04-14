@@ -31,11 +31,11 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
     var status=[];
     req.body.map((share,index) =>
     {
-        var currency="INSERT INTO currencies(curId,exchageValue) VALUES ('"+share.curId+
+        var currency="INSERT INTO currencies(curId,currName,exchageValue) VALUES ('"+share.curId+"','"+share.currName+
                                     "','"+share.exchangeValue+"' )"
         connect.query(currency,(err,result) =>
         {
-            if(!err)
+            if(!err || "ER_DUP_ENTRY"===err.code)
             {
                 console.log("inserted currency successfully");
                 var country ="INSERT INTO country (countryId,population,name,curId) VALUES ('" +share.countryId
@@ -43,7 +43,7 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
                             "')"
                 connect.query(country,(err,result) =>
                 {
-                    if(!err)
+                    if(!err || "ER_DUP_ENTRY"===err.code)
                     {
                         console.log("inserted country successfullly");
                         var market = "INSERT INTO stockMarket (marketName,marketId,countryId) VALUES ('" +share.marketName+"' ,'" +
@@ -51,7 +51,7 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
                             ")"
                         connect.query(market,(err,result) =>
                         {
-                            if(!err)
+                            if(!err || "ER_DUP_ENTRY"===err.code)
                             {
                                 console.log("inserted market successfullly")
                                 var sql = "INSERT INTO shares (shareId,shareValue,marketId,corpId) VALUES ('"+share.shareId+"' ," +
@@ -67,21 +67,24 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
                                     }
                                     else
                                     {
-                                        console.log("shares err",err);
+                                        if(err.code==="ER_DUP_ENTRY")
+                                            err.message="share already added";
+                                        console.log("from share");
+                                        next(err);
                                     }
                                 })
                             }
                             else
                             {
-                                console.log("market err",err);
-                                return ;
+                                console.log("from market");
+                                next(err);
                             }
                         })
                     }
                     else
                     {
-                        console.log("country err",err);
-                        return ;
+                        console.log("from market");
+                        next(err);
                     }
                 });
                 var corp = "INSERT INTO corporation (corpId,corpName,corpType) VALUES ('" +share.corpId+"' ,'" +
@@ -89,20 +92,28 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
                     ")"
                 connect.query(corp,(err,result) =>
                 {
-                    if(!err)
+                    if(!err || "ER_DUP_ENTRY"===err.code)
                     {
                         console.log("inserted into corporation successfully ");
                     }
                     else
                     {
-                        console.log("corp err",err);
+                        console.log("from corporation");
+                        if(err.code==="WARN_DATA_TRUNCATED")
+                            err.message="Only specific types are allowed in field corporation types";
+                        next(err);
                     }
                 });
             }
-            if(err)
+            else if(err)
             {
-                console.log("currency err",err);
-                return ;
+                console.log("from currency");
+                if(err.code==="ER_NO_DEFAULT_FOR_FIELD")
+                {
+                    err.message="currency name is required";
+                    err.status=404;
+                }
+                next(err);
             }
         });
     });

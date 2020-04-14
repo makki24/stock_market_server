@@ -2,7 +2,7 @@ module.exports =(connect,next) =>
 {
 
     var sql = "create table if not exists stockMarket(" +
-        "marketName varchar(20) ," +
+        "marketName varchar(20) not null," +
         "workingDays int(10)," +
         "marketId varchar(10) primary key," +
         "countryId varchar(10)," +
