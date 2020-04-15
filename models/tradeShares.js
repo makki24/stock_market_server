@@ -10,7 +10,6 @@ module.exports =(connect,next) =>
         "timeBoughtAt datetime not null,"+
         "timeSoldAt datetime,"+
         "primary key(username,shareId,timeBoughtAt),"+
-        "FOREIGN KEY (`shareId`) REFERENCES `shares` (`shareId`), " +
         "FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON DELETE CASCADE " +
         " )";
 

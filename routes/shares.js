@@ -117,5 +117,26 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
             }
         });
     });
-})
+});
+
+
+router.delete('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+{
+   var count =0;
+   req.body.map((value) =>
+   {
+       console.log(value);
+       var sql ="DELETE FROM shares WHERE shareId='"+value+"'";
+       connect.query(sql,(err,result) =>
+       {
+           if(!err)
+           {
+               count++;
+           }
+       })
+   });
+   res.statusCode=200;
+   res.setHeader('Content-Type','application/json');
+   res.json({status:"successfully deleted "+count});
+});
 module.exports= router;
