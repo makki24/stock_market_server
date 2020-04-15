@@ -31,6 +31,10 @@ const connec_fn = () =>
             createmarket(connect);
             const createshare =require('./models/shares');
             createshare(connect);
+            const createholds =require('./models/holds');
+            createholds(connect);
+            const createtradeShares =require('./models/tradeShares');
+            createtradeShares(connect);
         }
     });
 }

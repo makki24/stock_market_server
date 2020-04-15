@@ -8,6 +8,7 @@ module.exports =(connect,next) =>
         "shareValue int(10)," +
         "marketId varchar(10)," +
         "corpId varchar(10)," +
+        "soldOut bool default false,"+
         "FOREIGN KEY (`marketId`) REFERENCES `stockMarket` (`marketId`) ON DELETE CASCADE," +
         "FOREIGN KEY (`corpId`) REFERENCES `corporation` (`corpId`) ON DELETE CASCADE  )"
 
