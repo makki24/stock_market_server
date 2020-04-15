@@ -9,6 +9,7 @@ var connection =require('./connection');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var shareRouter = require('./routes/shares');
+var tradeRouter= require('./routes/trades');
 
 var app = express();
 
@@ -34,6 +35,7 @@ connection.connection;
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/shares',shareRouter);
+app.use('/users/trades',tradeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
