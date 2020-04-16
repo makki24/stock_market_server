@@ -119,7 +119,23 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
     });
 });
 
-
+router.put('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+{
+    var sql="update shares set shareValue ="+req.body.shareValue+" where shareId='"+req.body.shareId+"'";
+    connect.query(sql,(err,result) =>
+    {
+       if(!err)
+       {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({"success": true});
+       }
+       else
+       {
+           next(err);
+       }
+    });
+})
 router.delete('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
    var count =0;

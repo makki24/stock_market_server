@@ -14,7 +14,6 @@ router.get('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,n
     var sql = "SELECT * FROM users";
     connect.query(sql,(err,result,field) =>
     {
-        console.log("all users is ",result);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json({result});
