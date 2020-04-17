@@ -10,7 +10,11 @@ module.exports =(connect,next) =>
         "lastname varchar(255)," +
         "gender enum('m','f') not null," +
         "address varchar(255)," +
-        "phone varchar(20) )";
+        "name varchar(10) not null ," +
+        "accountBalance decimal(15,2)," +
+        "phone varchar(20), " +
+        "FOREIGN KEY (`name`) REFERENCES `country` (`name`) ON DELETE CASCADE  )"
+
 
     connect.query(sql,(err,result,field) =>
     {

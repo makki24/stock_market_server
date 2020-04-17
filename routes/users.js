@@ -27,9 +27,10 @@ router.post('/signup',(req,res,next) =>
    ind=arr.indexOf(req.body.type);
    if(!req.body.broker || ((req.body.commision>=0) && (req.body.commision<=100) && ind!==-1))
    {
-       var sql = "INSERT INTO users (username,password,broker,firstname,lastname,address,phone,gender) VALUES (" +
+       var sql = "INSERT INTO users (username,password,broker,firstname,lastname,address,phone,name,gender) VALUES (" +
            "'" + req.body.username + "','" + req.body.password + "','" + req.body.broker + "','" + req.body.firstname + "','" +
-           req.body.lastname + "','" + req.body.address + "','" + req.body.phone_no + "','" + req.body.gender + "')";
+           req.body.lastname + "','" + req.body.address + "','" + req.body.phone_no + "','" + req.body.country+"','" +
+           "" +req.body.gender + "')"
        connect.query(sql, (err, resu, field) =>
        {
            if (err)

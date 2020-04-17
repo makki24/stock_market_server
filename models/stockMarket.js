@@ -5,8 +5,8 @@ module.exports =(connect,next) =>
         "marketName varchar(20) not null," +
         "workingDays int(10)," +
         "marketId varchar(10) primary key," +
-        "countryId varchar(10)," +
-        "FOREIGN KEY (`countryId`) REFERENCES `country` (`countryId`) ON DELETE CASCADE  )"
+        "name varchar(10)," +
+        "FOREIGN KEY (`name`) REFERENCES `country` (`name`) ON DELETE CASCADE  )"
 
     connect.query(sql,(err,result,field) =>
     {

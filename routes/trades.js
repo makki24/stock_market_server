@@ -122,4 +122,64 @@ router.delete('/',authenticate.authenticateUser,(req,res,next) =>
     });
 });
 
+
+router.post('/addMoney',authenticate.authenticateUser,(req,res,next) =>
+{
+    let sql="select name,accountBalance from users where username='"+req.user.user+"'";
+    connect.query(sql,(err,result) =>
+    {
+        if(!err && result.length>0)
+        {
+            let sql2 = "select exchageValue from currencies where name='" + result[0].name + "'";
+            let accountBalance = result[0].accountBalance;
+            connect.query(sql2, (err, result) =>
+            {
+                if(result.length>0 && !err)
+                {
+                    let value = result[0].exchageValue;
+                    req.body.amount = req.body.amount / value;
+                    console.log(req.body.amount);
+                    let sql3 = "INSERT INTO transacts (amount,username,status,dated) VALUES (" +
+                        req.body.amount + ",'" + req.user.user + "','success',now())";
+                    connect.query(sql3, (err, result) =>
+                    {
+                        if(!err)
+                        {
+                            accountBalance += req.body.amount;
+                            let sql4 = "UPDATE users set accountBalance=" + accountBalance + " where username='" + req.user.user + "'";
+                            connect.query(sql4, (err, result) =>
+                            {
+                                if(!err)
+                                {
+                                    res.statusCode = 200;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.json({"success": true});
+                                }
+                                else
+                                    next(err);
+                            })
+                        }
+                        else
+                        {
+                            next(err);
+                        }
+                    })
+                }
+                else
+                {
+                    if(result.length<1)
+                    {
+                        err.message="Your country doesn't have currency";
+                        err.status=404;
+                    }
+                    next(err);
+                }
+            })
+        }
+        else
+        {
+            next(err);
+        }
+    })
+})
 module.exports= router;

@@ -31,23 +31,29 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
     var status=[];
     req.body.map((share,index) =>
     {
-        var currency="INSERT INTO currencies(curId,currName,exchageValue) VALUES ('"+share.curId+"','"+share.currName+
-                                    "','"+share.exchangeValue+"' )"
-        connect.query(currency,(err,result) =>
+        share.population=share.population?share.population:0;
+        share.commision=share.commision?share.commision:0;
+        share.corpType=share.corpType?share.corpType:'non-profit';
+        share.exchageValue=share.exchageValue?share.exchageValue:0;
+        share.currName=share.currName?share.currName:"";
+        share.marketName=share.marketName?share.marketName:" ";
+        var country ="INSERT INTO country (name,population,commision) VALUES ("
+                        +" '" +share.name+"' ," +share.population+" ,'" +share.commision+
+                            "')";
+        connect.query(country,(err,result) =>
         {
-            if(!err || "ER_DUP_ENTRY"===err.code)
+            if(!err || "ER_DUP_ENTRY"===err.code )
             {
-                console.log("inserted currency successfully");
-                var country ="INSERT INTO country (countryId,population,name,curId) VALUES ('" +share.countryId
-                        +"' ," +share.population+" ,'" +share.name+"' ,'" +share.curId+
-                            "')"
-                connect.query(country,(err,result) =>
+                console.log("inserted country successfully");
+                var currency="INSERT INTO currencies(curId,currName,name,exchageValue) VALUES ('"+share.curId+"','"+share.currName+
+                                    "','"+share.name+"',"+share.exchageValue+" )"
+                connect.query(currency,(err,result) =>
                 {
                     if(!err || "ER_DUP_ENTRY"===err.code)
                     {
-                        console.log("inserted country successfullly");
-                        var market = "INSERT INTO stockMarket (marketName,marketId,countryId) VALUES ('" +share.marketName+"' ,'" +
-                            share.marketId+"' ,'" +share.countryId+"' " +
+                        console.log("inserted currencies successfullly");
+                        var market = "INSERT INTO stockMarket (marketName,marketId,name) VALUES ('" +share.marketName+"' ,'" +
+                            share.marketId+"' ,'" +share.name+"' " +
                             ")"
                         connect.query(market,(err,result) =>
                         {
@@ -58,7 +64,7 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
                                     share.shareValue+" ,'"+share.marketId+"' ,'"+share.corpId+"')";
                                 connect.query(sql,(err,result) =>
                                 {
-                                    if(!err)
+                                    if(!err || "ER_DUP_ENTRY"===err.code)
                                     {
                                         console.log("inserted share successfullly")
                                         res.statusCode=200;
@@ -83,7 +89,7 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
                     }
                     else
                     {
-                        console.log("from market");
+                        console.log("from currencies",err);
                         next(err);
                     }
                 });
@@ -107,10 +113,10 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
             }
             else if(err)
             {
-                console.log("from currency");
+                console.log("from country",err);
                 if(err.code==="ER_NO_DEFAULT_FOR_FIELD")
                 {
-                    err.message="currency name is required";
+                    err.message="country name is required";
                     err.status=404;
                 }
                 next(err);

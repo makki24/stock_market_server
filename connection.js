@@ -17,6 +17,8 @@ const connec_fn = () =>
         else
         {
             console.log('connected correctly to the database server');
+            const createcountry = require('./models/country');
+            createcountry(connect);
             const createuser =require('./models/users');
             createuser(connect);
             const createbrooker =require('./models/broker');
@@ -25,8 +27,6 @@ const connec_fn = () =>
             createcorp(connect);
             const createcurrency= require('./models/currency');
             createcurrency(connect);
-            const createcountry = require('./models/country');
-            createcountry(connect);
             const createmarket = require('./models/stockMarket');
             createmarket(connect);
             const createshare =require('./models/shares');
@@ -35,6 +35,8 @@ const connec_fn = () =>
             createholds(connect);
             const createtradeShares =require('./models/tradeShares');
             createtradeShares(connect);
+            const createtransacts =require('./models/transacts');
+            createtransacts(connect);
         }
     });
 }
