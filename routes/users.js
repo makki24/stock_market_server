@@ -19,6 +19,16 @@ router.get('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,n
         res.json({result});
     });
 });
+router.get('/:username',authenticate.authenticateUser,(req,res,next) =>
+{
+    var sql = "select * from users where username= '"+req.user.user+"'";
+    connect.query(sql,(err,result,field) =>
+    {
+        res.statusCode=200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(result[0]);
+    })
+})
 router.post('/signup',(req,res,next) =>
 {
    var arr=['full service','discount','online broker'];

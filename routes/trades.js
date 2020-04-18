@@ -25,6 +25,7 @@ router.get('/',authenticate.authenticateUser,(req,res,next) =>
 
 router.post('/',authenticate.authenticateUser,(req,res,next) =>
 {
+    /* update amount left */
     var sql2="select shareValue,soldOut from shares where shareId= '"+req.body.shareId+"'";
     connect.query(sql2,(err,result) =>
     {
@@ -39,33 +40,56 @@ router.post('/',authenticate.authenticateUser,(req,res,next) =>
             }
             else
             {
-                var sql = "INSERT INTO tradeShare" +
-                    "s (username,shareId,priceBoughtAt,timeBoughtAt) VALUES ( '" + req.user.user + "'," +
-                    "'" + req.body.shareId + "','" + price + "', now()     )";
-                connect.query(sql, (err, result) =>
+                var que="select accountBalance from users where username= '"+req.user.user+"'";
+                connect.query(que,(err,result) =>
                 {
-                    if (!err)
+                    var accountBalance=result[0].accountBalance;
+                    if(accountBalance>=price)
                     {
-                        var upd = "UPDATE shares set soldOut=1 where shareId= '" + req.body.shareId + "'";
-                        connect.query(upd, (err, result) =>
+                        accountBalance=accountBalance-price;
+                        var sql = "INSERT INTO tradeShare" +
+                        "s (username,shareId,priceBoughtAt,timeBoughtAt) VALUES ( '" + req.user.user + "'," +
+                        "'" + req.body.shareId + "','" + price + "', now()     )";
+                        connect.query(sql, (err, result) =>
                         {
-                            var sql3= "INSERT INTO holds (username,shareId,priceBoughtAt) VALUES ( '" +
-                                req.user.user+"','"+req.body.shareId+"','"+price+"')";
-                            connect.query(sql3,(err,result) =>
-                            {
-                                if(!err)
+                                if (!err)
                                 {
-                                    res.statusCode = 200;
-                                    res.setHeader('Content-Type', 'application/json');
-                                    res.json({"success": true});
-                                }
-                                else
-                                    console.log(err);
-                            })
-                        })
-                    } else
+                                    var upd = "UPDATE shares set soldOut=1 where shareId= '" + req.body.shareId + "'";
+                                    connect.query(upd, (err, result) =>
+                                    {
+                                        var sql3= "INSERT INTO holds (username,shareId,priceBoughtAt) VALUES ( '" +
+                                            req.user.user+"','"+req.body.shareId+"','"+price+"')";
+                                        connect.query(sql3,(err,result) =>
+                                        {
+                                            if(!err)
+                                            {
+                                                var upd2="UPDATE users set accountBalance="+accountBalance+" where " +
+                                                    "username ='"+req.user.user+"'";
+                                                connect.query(upd2,(err,result) =>
+                                                {
+                                                    if(err)
+                                                        console.log(err);
+                                                    res.statusCode = 200;
+                                                    res.setHeader('Content-Type', 'application/json');
+                                                    res.json({"success": true});
+                                                })
+                                            }
+                                            else
+                                                console.log(err);
+                                        })
+                                    })
+                                } else
+                                    next(err);
+                        });
+                    }
+                    else
+                    {
+                        err=new Error();
+                        err.message="Insufficient account balance\n";
+                        err.status=403;
                         next(err);
-                });
+                    }
+                })
             }
         }
         else
@@ -97,22 +121,41 @@ router.delete('/',authenticate.authenticateUser,(req,res,next) =>
                 {
                     if(!error)
                     {
-                        var upd2 = "UPDATE tradeShares set priceSoldAt='" + value + "', timeSoldAt=now() where " +
-                            "timeSoldAt is NULL and shareId='"+id+"'";
-                        connect.query(upd2,(err,result) =>
+                        var que="select accountBalance from users where username= '"+req.user.user+"'";
+                        connect.query(que,(err,result) =>
                         {
-                            console.log(result);
                             if(!err)
                             {
-                                res.statusCode = 200;
-                                res.setHeader('Content-Type', 'application/json');
-                                res.json({"success": true});
+                                var accountBalance=result[0].accountBalance+value;
+                                var upd3="UPDATE users set accountBalance="+accountBalance+" where username ='"+
+                                    req.user.user+"'";
+                                connect.query(upd3,(err,next) =>
+                                {
+                                    var upd2 = "UPDATE tradeShares set priceSoldAt='" + value + "', timeSoldAt=now() where " +
+                                    "timeSoldAt is NULL and shareId='"+id+"'";
+                                    connect.query(upd2,(err,result) =>
+                                    {
+                                        console.log(result);
+                                        if(!err)
+                                        {
+                                            res.statusCode = 200;
+                                            res.setHeader('Content-Type', 'application/json');
+                                            res.json({"success": true});
+                                        }
+                                        else
+                                        {
+                                            next(err);
+                                        }
+                                    })
+                                })
                             }
                             else
                             {
+                                console.log(err);
                                 next(err);
                             }
                         })
+
                     }
                     else
                         next(err);
