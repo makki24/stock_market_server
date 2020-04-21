@@ -4,10 +4,11 @@ var passport = require('passport');
 var authenticate =require('../authenticate');
 const bodyParser =require('body-parser');
 var connect = require('../connection').connect;
+var cors =require('./cors');
 
 router.use(bodyParser.json());
 
-router.get('/',(req,res,next) =>
+router.get('/',cors.cors,(req,res,next) =>
 {
     var sql = "SELECT * FROM shares ";
 
