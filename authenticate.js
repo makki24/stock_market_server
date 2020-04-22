@@ -8,28 +8,39 @@ exports.authenticateUser =(req,res,next) =>
        var username =req.body.username;
        var password =req.body.password;
        var sql="SELECT * from users where username = \'"+username+"\' and password = \'" +password+"\'";
-       connect.query(sql,(err,res,field) =>
+       connect.query(sql,(err,result,field) =>
        {
            if(err)
            {
                next(err);
                return ;
            }
-           if(res.length>0)
+           if(result.length>0)
            {
                var obj=new Object();
                obj.user=username;
-               obj.broker =res[0].broker;
-               obj.admin= res[0].admin;
+               obj.broker =result[0].broker;
+               obj.admin= result[0].admin;
                req.user=obj;
                req.session.user = obj;
                next();
            }
            else
            {
-               var err =new Error("password and username combination doesn't exist  ");
-               err.status=401;
-               next(err);
+                req.session.destroy((err) =>
+                {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    return res.json({
+                        "success": false,
+                        "status": 'login unsuccessfull',
+                        err: 'username and password combination doesn\'t exist'
+                    });
+                })
            }
        })
     }

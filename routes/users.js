@@ -4,10 +4,11 @@ var passport = require('passport');
 var authenticate =require('../authenticate');
 const bodyParser =require('body-parser');
 var connect = require('../connection').connect;
-
+var cors =require('./cors');
 
 
 router.use(bodyParser.json());
+router.options('*',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);});
 
 router.get('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
@@ -96,20 +97,45 @@ router.post('/signup',(req,res,next) =>
        err=new Error("unknown err");
        next(err);
    }
-})
-router.post('/login',(req,res,next) =>
+});
+
+
+router.post('/logout',cors.corsWithOptions,(req,res,next) =>
+{
+    console.log(req.session);
+    if(req.session.user)
+    {
+        req.session.destroy((err) => {
+                if(err) {
+                    return console.log(err);
+                }
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                return res.json({"success": true});
+        });
+    }
+    else
+    {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        return res.json({"success": false, "status": 'login unsuccessfull',err:'You are not logged in'});
+    }
+});
+
+router.post('/login',cors.corsWithOptions,(req,res,next) =>
 {
     req.session.user=null;
     res.clearCookie('session-id');
     next();
 }, authenticate.authenticateUser,(req, res, next) =>
 {
+    console.log(req.session);
     if(req.user)
     {
          console.log(req.user);
          res.statusCode = 200;
          res.setHeader('Content-Type', 'application/json');
-         res.json({"status":"success"});
+         res.json({"success":true});
     }
     else
     {
@@ -118,22 +144,6 @@ router.post('/login',(req,res,next) =>
     }
 });
 
-router.get('/logout',(req,res,next) =>
-{
-    if(req.session.user)
-    {
-        req.session.destroy((err) => {
-                if(err) {
-                    return console.log(err);
-                }
-                res.redirect('/');
-        });
-    }
-    else
-    {
-        var err =new Error("you are not logged in");
-        err.status=403;
-        next(err);
-    }
-})
+
+
 module.exports = router;
