@@ -4,10 +4,10 @@ var passport = require('passport');
 var authenticate =require('../authenticate');
 const bodyParser =require('body-parser');
 var connect = require('../connection').connect;
-
+var cors =require('./cors');
 router.use(bodyParser.json());
 
-router.get('/',authenticate.authenticateUser,(req,res,next) =>
+router.get('/holds',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
     var sql ="SELECT shareId,priceBoughtAt FROM holds where username= '"+req.user.user+"'";
     connect.query(sql,(err,result)=>
@@ -23,6 +23,21 @@ router.get('/',authenticate.authenticateUser,(req,res,next) =>
     })
 });
 
+router.get('/history',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
+{
+    var sql ="SELECT shareId,priceBoughtAt,priceSoldAt,priceSoldAt,timeBoughtAt,timeSoldAt FROM tradeShares where username= '"+req.user.user+"'";
+    connect.query(sql,(err,result)=>
+    {
+        if(!err)
+        {
+            res.statusCode=200;
+            res.setHeader('Content-Type','application/json');
+            res.json(result);
+        }
+        else
+            next(err);
+    })
+})
 router.post('/',authenticate.authenticateUser,(req,res,next) =>
 {
     /* update amount left */

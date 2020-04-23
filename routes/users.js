@@ -20,7 +20,7 @@ router.get('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,n
         res.json({result});
     });
 });
-router.get('/:username',authenticate.authenticateUser,(req,res,next) =>
+router.get('/details',authenticate.authenticateUser,(req,res,next) =>
 {
     var sql = "select * from users where username= '"+req.user.user+"'";
     connect.query(sql,(err,result,field) =>
@@ -129,10 +129,8 @@ router.post('/login',cors.corsWithOptions,(req,res,next) =>
     next();
 }, authenticate.authenticateUser,(req, res, next) =>
 {
-    console.log(req.session);
     if(req.user)
     {
-         console.log(req.user);
          res.statusCode = 200;
          res.setHeader('Content-Type', 'application/json');
          res.json({"success":true});
