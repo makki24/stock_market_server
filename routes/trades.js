@@ -25,7 +25,7 @@ router.get('/holds',cors.corsWithOptions,authenticate.authenticateUser,(req,res,
 
 router.get('/history',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
-    var sql ="SELECT shareId,priceBoughtAt,priceSoldAt,priceSoldAt,timeBoughtAt,timeSoldAt FROM tradeShares where username= '"+req.user.user+"'";
+    var sql ="SELECT shareName,priceBoughtAt,priceSoldAt,priceSoldAt,timeBoughtAt,timeSoldAt FROM tradeShares where username= '"+req.user.user+"'";
     connect.query(sql,(err,result)=>
     {
         if(!err)
@@ -63,7 +63,7 @@ router.post('/',authenticate.authenticateUser,(req,res,next) =>
                     {
                         accountBalance=accountBalance-price;
                         var sql = "INSERT INTO tradeShare" +
-                        "s (username,shareId,priceBoughtAt,timeBoughtAt) VALUES ( '" + req.user.user + "'," +
+                        "s (username,shareName,priceBoughtAt,timeBoughtAt) VALUES ( '" + req.user.user + "'," +
                         "'" + req.body.shareId + "','" + price + "', now()     )";
                         connect.query(sql, (err, result) =>
                         {

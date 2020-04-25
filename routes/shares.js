@@ -8,7 +8,8 @@ var cors =require('./cors');
 
 router.use(bodyParser.json());
 
-router.get('/',cors.cors,(req,res,next) =>
+router.options('*',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);})
+router.get('/',cors.corsWithOptions,(req,res,next) =>
 {
     var sql = "SELECT * FROM shares ";
 

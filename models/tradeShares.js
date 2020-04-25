@@ -3,13 +3,13 @@ module.exports =(connect,next) =>
 
     var sql = "create table if not exists tradeShares(" +
         "username varchar(255) ," +
-        "shareId varchar(10) ," +
+        "shareName varchar(10) ," +
         "priceBoughtAt int(10) not null," +
         "priceSoldAt int(10) ,"+
         "status enum('available,not-available,owned'),"+
         "timeBoughtAt datetime not null,"+
         "timeSoldAt datetime,"+
-        "primary key(username,shareId,timeBoughtAt),"+
+        "primary key(username,shareName,timeBoughtAt),"+
         "FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON DELETE CASCADE " +
         " )";
 

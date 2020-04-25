@@ -4,7 +4,7 @@ module.exports =(connect,next) =>
     var sql = "create table if not exists corporation(" +
         "corpId varchar(10) primary key," +
         "IPODate date," +
-        "image varchar(15),"
+        "image varchar(50),"+
         "corpName varchar(10) not null ," +
         "corpType enum('publicly held','closely held','limited liability','c corporation','s corporation'" +
             ",'professional','non-profit') default 'non-profit', " +

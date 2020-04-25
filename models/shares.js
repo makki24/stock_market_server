@@ -5,10 +5,12 @@ module.exports =(connect,next) =>
      */
     var sql = "create table if not exists shares(" +
         "shareId varchar(10) primary key," +
+        "shareName varchar(10)," +
         "shareValue int(10)," +
         "marketId varchar(10)," +
         "corpId varchar(10)," +
         "soldOut bool default false,"+
+        "UNIQUE KEY(shareName,corpId),"+
         "FOREIGN KEY (`marketId`) REFERENCES `stockMarket` (`marketId`) ON DELETE CASCADE," +
         "FOREIGN KEY (`corpId`) REFERENCES `corporation` (`corpId`) ON DELETE CASCADE  )"
 
