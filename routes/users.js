@@ -20,7 +20,7 @@ router.get('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,n
         res.json({result});
     });
 });
-router.get('/details',authenticate.authenticateUser,(req,res,next) =>
+router.get('/details',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
     var sql = "select * from users where username= '"+req.user.user+"'";
     connect.query(sql,(err,result,field) =>
