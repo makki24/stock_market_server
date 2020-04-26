@@ -7,6 +7,7 @@ var connect = require('../connection').connect;
 var cors =require('./cors');
 router.use(bodyParser.json());
 
+router.options('*',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);})
 router.get('/holds',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
     var sql ="SELECT shareId,priceBoughtAt FROM holds where username= '"+req.user.user+"'";
@@ -38,7 +39,7 @@ router.get('/history',cors.corsWithOptions,authenticate.authenticateUser,(req,re
             next(err);
     })
 })
-router.post('/',authenticate.authenticateUser,(req,res,next) =>
+router.post('/',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
     /* update amount left */
     var sql2="select shareValue,soldOut from shares where shareId= '"+req.body.shareId+"'";
@@ -110,7 +111,7 @@ router.post('/',authenticate.authenticateUser,(req,res,next) =>
         else
         {
             if(result.length===0)
-                err.message="Share not found";
+                err=new Error("Share not found")
             next(err);
         }
     });
@@ -144,10 +145,10 @@ router.delete('/',authenticate.authenticateUser,(req,res,next) =>
                                 var accountBalance=result[0].accountBalance+value;
                                 var upd3="UPDATE users set accountBalance="+accountBalance+" where username ='"+
                                     req.user.user+"'";
-                                connect.query(upd3,(err,next) =>
+                                connect.query(upd3,(err,result) =>
                                 {
                                     var upd2 = "UPDATE tradeShares set priceSoldAt='" + value + "', timeSoldAt=now() where " +
-                                    "timeSoldAt is NULL and shareId='"+id+"'";
+                                    "timeSoldAt is NULL and shareName='"+id+"'";
                                     connect.query(upd2,(err,result) =>
                                     {
                                         console.log(result);
