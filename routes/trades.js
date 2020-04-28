@@ -10,7 +10,8 @@ router.use(bodyParser.json());
 router.options('*',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);})
 router.get('/holds',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
-    var sql ="SELECT shareId,priceBoughtAt FROM holds where username= '"+req.user.user+"'";
+    var sql ="SELECT holds.shareId,priceBoughtAt,shareValue FROM (holds join shares) where holds." +
+        "shareId=shares.shareId and username= '"+req.user.user+"'";
     connect.query(sql,(err,result)=>
     {
         if(!err)
@@ -117,67 +118,78 @@ router.post('/',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next
     });
 });
 
-router.delete('/',authenticate.authenticateUser,(req,res,next) =>
+router.delete('/',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
-
+    console.log(req.body.shareId);
     var ret= "select shareValue,shareId from shares where shareId= '"+req.body.shareId+"'";
     connect.query(ret,(err,result) =>
     {
-       var id= result[0].shareId;
-       var value= result[0].shareValue;
-       var sql = "DELETE FROM holds where shareId= '"+id+"'";
-       connect.query(sql,(err,result) =>
+       if(!err && result.length>0)
        {
-            if(err)
-                next(err);
-            else
-            {
-                var upd= "UPDATE shares set soldOut=0 where shareId='"+id+"'";
-                connect.query(upd,(error,result) =>
-                {
-                    if(!error)
-                    {
-                        var que="select accountBalance from users where username= '"+req.user.user+"'";
-                        connect.query(que,(err,result) =>
-                        {
-                            if(!err)
-                            {
-                                var accountBalance=result[0].accountBalance+value;
-                                var upd3="UPDATE users set accountBalance="+accountBalance+" where username ='"+
-                                    req.user.user+"'";
-                                connect.query(upd3,(err,result) =>
-                                {
-                                    var upd2 = "UPDATE tradeShares set priceSoldAt='" + value + "', timeSoldAt=now() where " +
-                                    "timeSoldAt is NULL and shareName='"+id+"'";
-                                    connect.query(upd2,(err,result) =>
-                                    {
-                                        console.log(result);
-                                        if(!err)
-                                        {
-                                            res.statusCode = 200;
-                                            res.setHeader('Content-Type', 'application/json');
-                                            res.json({"success": true});
-                                        }
-                                        else
-                                        {
-                                            next(err);
-                                        }
-                                    })
-                                })
-                            }
-                            else
-                            {
-                                console.log(err);
-                                next(err);
-                            }
-                        })
+           var id = result[0].shareId;
+           var value = result[0].shareValue;
+           var sql = "DELETE FROM holds where shareId= '" + id + "'";
+           connect.query(sql, (err, result) =>
+           {
+               if (err)
+                   next(err);
+               else
+               {
+                   var upd = "UPDATE shares set soldOut=0 where shareId='" + id + "'";
+                   connect.query(upd, (error, result) =>
+                   {
+                       if (!error)
+                       {
+                           var que = "select accountBalance from users where username= '" + req.user.user + "'";
+                           connect.query(que, (err, result) =>
+                           {
+                               if (!err)
+                               {
+                                   var accountBalance = result[0].accountBalance + value;
+                                   var upd3 = "UPDATE users set accountBalance=" + accountBalance + " where username ='" +
+                                       req.user.user + "'";
+                                   connect.query(upd3, (err, result) =>
+                                   {
+                                       var upd2 = "UPDATE tradeShares set priceSoldAt='" + value + "', timeSoldAt=now() where " +
+                                           "timeSoldAt is NULL and shareName='" + id + "'";
+                                       connect.query(upd2, (err, result) =>
+                                       {
+                                           console.log(result);
+                                           if (!err)
+                                           {
+                                               res.statusCode = 200;
+                                               res.setHeader('Content-Type', 'application/json');
+                                               res.json({"success": true});
+                                           } else
+                                           {
+                                               next(err);
+                                           }
+                                       })
+                                   })
+                               } else
+                               {
+                                   console.log(err);
+                                   next(err);
+                               }
+                           })
 
-                    }
-                    else
-                        next(err);
-                });
-            }
-       });
+                       } else
+                           next(err);
+                   });
+               }
+           });
+       }
+       else
+       {
+           if(err)
+               next(err);
+           else
+           {
+               err=new Error("Share not found In shares");
+               console.log(err);
+               next(err);
+           }
+       }
     });
 });
 
