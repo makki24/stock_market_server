@@ -30,12 +30,16 @@ router.get('/details',cors.corsWithOptions,authenticate.authenticateUser,(req,re
         res.json(result[0]);
     })
 })
-router.post('/signup',(req,res,next) =>
+router.post('/signup',cors.corsWithOptions,(req,res,next) =>
 {
+   console.log(req.body);
    var arr=['full service','discount','online broker'];
    var ind;
    if(req.body.broker)
    ind=arr.indexOf(req.body.type);
+   req.body.broker=req.body.broker===true?1:0;
+   req.body.gender=req.body.gender==='Male'?'m':'f';
+   req.body.commision=parseFloat(req.body.commission).toFixed(2);
    if(!req.body.broker || ((req.body.commision>=0) && (req.body.commision<=100) && ind!==-1))
    {
        var sql = "INSERT INTO users (username,password,broker,firstname,lastname,address,phone,name,gender) VALUES (" +
@@ -46,6 +50,9 @@ router.post('/signup',(req,res,next) =>
        {
            if (err)
            {
+               console.log(err);
+               if(err.code==='ER_DUP_ENTRY')
+                   err.message="Username aleready exists";
                next(err);
                return;
            } else
@@ -59,20 +66,21 @@ router.post('/signup',(req,res,next) =>
                    {
                        if (err)
                        {
+                           console.log(err)
                            next(err);
                            return;
                        } else
                        {
                            res.statusCode = 200;
                            res.setHeader('Content-Type', 'application/json');
-                           res.json({"status": "success", "broker_added": true});
+                           res.json({"success": true, "broker_added": true});
                        }
                    })
                } else
                {
                    res.statusCode = 200;
                    res.setHeader('Content-Type', 'application/json');
-                   res.json({"status": "success"});
+                   res.json({"success": true,});
                }
            }
        });
