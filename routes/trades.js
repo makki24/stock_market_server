@@ -193,8 +193,9 @@ router.delete('/',cors.corsWithOptions,authenticate.authenticateUser,(req,res,ne
     });
 });
 
+router.options('/addMoney',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);})
 
-router.post('/addMoney',authenticate.authenticateUser,(req,res,next) =>
+router.post('/addMoney',cors.corsWithOptions,authenticate.authenticateUser,(req,res,next) =>
 {
     let sql="select name,accountBalance from users where username='"+req.user.user+"'";
     connect.query(sql,(err,result) =>
