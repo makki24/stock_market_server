@@ -11,7 +11,7 @@ router.use(bodyParser.json());
 router.options('*',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);})
 router.get('/',cors.corsWithOptions,(req,res,next) =>
 {
-    var sql = "select shareId,shareName,shareValue,marketName,corpId,soldOut from shares,stockMarket where shares.marketId=stockMarket.marketId;";
+    var sql = "select shareId,shareName,shareValue,marketName,corpId,soldOut,name from shares,stockMarket where shares.marketId=stockMarket.marketId;";
 
     connect.query(sql,(err,result) =>
     {
