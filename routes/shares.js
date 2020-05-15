@@ -28,7 +28,27 @@ router.get('/',cors.corsWithOptions,(req,res,next) =>
     })
 });
 
-router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+
+router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+{
+
+    var sql ="INSERT into shares (corpId,shareId,shareName,shareValue,marketId) values ('" +
+        req.body.corpId+"','"+req.body.shareId+"','"+req.body.shareName+"',"+req.body.shareValue+", " +
+        "'"+req.body.marketId+"' )";
+    connect.query(sql,(err,result) =>
+    {
+        if(err)
+            next(err)
+        else
+        {
+            res.statusCode=200;
+            res.setHeader('Content-Type','application/json');
+            res.json({"success":true});
+        }
+    })
+});
+
+/*router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
     var status=[];
     req.body.map((share,index) =>
@@ -125,7 +145,7 @@ router.post('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,
             }
         });
     });
-});
+});         */
 
 router.put('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {

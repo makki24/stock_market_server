@@ -12,6 +12,8 @@ var shareRouter = require('./routes/shares');
 var tradeRouter= require('./routes/trades');
 var corpRouter =require('./routes/corporation');
 var countryRouter =require('./routes/country');
+var uploadImage =require('./routes/uploadRouter');
+var marketRouter= require('./routes/market');
 
 var app = express();
 
@@ -40,6 +42,8 @@ app.use('/shares',shareRouter);
 app.use('/users/trades',tradeRouter);
 app.use('/corporation',corpRouter);
 app.use('/country',countryRouter);
+app.use('/upload',uploadImage);
+app.use('/market',marketRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

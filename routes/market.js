@@ -10,7 +10,7 @@ router.options('*',cors.corsWithOptions,(req,res)=>{res.sendStatus(200);});
 
 router.get('/',cors.corsWithOptions,(req,res,next) =>
 {
-    var sql="SELECT * FROM corporation";
+    var sql="SELECT * FROM stockMarket";
     connect.query(sql,(err,result)  =>
     {
         if(err)
@@ -26,10 +26,13 @@ router.get('/',cors.corsWithOptions,(req,res,next) =>
     })
 });
 
+
 router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
-    var sql ="INSERT into corporation (corpId,corpName,corpType,image,startDate) values ('" +
-        req.body.corpId+"','"+req.body.corpName+"','"+req.body.corpType+"','"+req.body.image+"', now())";
+ //   req.body.commision=parseFloat(req.body.commision).toFixed(2);
+    console.log(req.body);
+   var sql ="INSERT into stockMarket (name,workingDays,marketId,marketName) values ('" +
+        req.body.name+"','"+req.body.workingDays+"','"+req.body.marketId+"','"+req.body.marketName+"' )";
     connect.query(sql,(err,result) =>
     {
         if(err)
@@ -42,5 +45,4 @@ router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.
         }
     })
 })
-
 module.exports =router;
