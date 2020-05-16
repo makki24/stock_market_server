@@ -147,7 +147,7 @@ router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.
     });
 });         */
 
-router.put('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+router.put('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
     var sql="update shares set shareValue ="+req.body.shareValue+" where shareId='"+req.body.shareId+"'";
     connect.query(sql,(err,result) =>

@@ -44,7 +44,15 @@ router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.
             connect.query(curq,(err,result) =>
             {
                 if(err)
-                    next(err);
+                {
+                    let del="DELETE from country where name='"+req.body.name+"'";
+                    connect.query(del,(errs,result) =>
+                    {
+                        if(errs)
+                            next(errs);
+                        next(err);
+                    })
+                }
                 else
                 {
                     res.statusCode=200;
