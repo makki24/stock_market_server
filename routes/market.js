@@ -45,4 +45,25 @@ router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.
         }
     })
 })
+
+
+router.delete('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+{
+   var sql ="DELETE FROM stockMarket WHERE marketName='"+req.body.marketName+"'";
+   connect.query(sql,(err,result) =>
+   {
+       if(!err)
+       {
+           res.statusCode=200;
+           res.setHeader('Content-Type','application/json');
+           res.json({"success": true});
+       }
+       else
+       {
+           next(err);
+       }
+   })
+});
+
+
 module.exports =router;

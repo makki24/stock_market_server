@@ -164,23 +164,21 @@ router.put('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.v
        }
     });
 })
-router.delete('/',authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
+router.delete('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
-   var count =0;
-   req.body.map((value) =>
+   var sql ="DELETE FROM shares WHERE shareId='"+req.body.shareId+"'";
+   connect.query(sql,(err,result) =>
    {
-       console.log(value);
-       var sql ="DELETE FROM shares WHERE shareId='"+value+"'";
-       connect.query(sql,(err,result) =>
+       if(!err)
        {
-           if(!err)
-           {
-               count++;
-           }
-       })
-   });
-   res.statusCode=200;
-   res.setHeader('Content-Type','application/json');
-   res.json({status:"successfully deleted "+count});
+           res.statusCode=200;
+           res.setHeader('Content-Type','application/json');
+           res.json({"success": true});
+       }
+       else
+       {
+           next(err);
+       }
+   })
 });
 module.exports= router;
