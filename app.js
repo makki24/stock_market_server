@@ -47,7 +47,8 @@ app.use('/market',marketRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    res.redirect('/')
+ // next(createError(404));
 });
 
 // error handler
@@ -60,8 +61,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');  */
 
-
-  res.statusCode = 404;
+ console.log(err.message);
+  res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   return res.json({
                         "success": false,

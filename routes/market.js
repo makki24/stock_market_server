@@ -49,7 +49,7 @@ router.post('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.
 
 router.delete('/',cors.corsWithOptions,authenticate.authenticateUser,authenticate.verifyAdmin,(req,res,next) =>
 {
-   var sql ="DELETE FROM stockMarket WHERE marketName='"+req.body.marketName+"'";
+   var sql ="DELETE FROM stockMarket WHERE marketId='"+req.body.marketId+"'";
    connect.query(sql,(err,result) =>
    {
        if(!err)

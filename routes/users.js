@@ -111,7 +111,7 @@ router.post('/signup',cors.corsWithOptions,(req,res,next) =>
 router.post('/logout',cors.corsWithOptions,(req,res,next) =>
 {
     console.log(req.session);
-    if(req.session.user)
+    if(1)
     {
         req.session.destroy((err) => {
                 if(err) {
